@@ -79,12 +79,8 @@ NutriTrack/
 
 1. **Nutrition Lookup**: Enter a food item to get detailed nutritional information
 2. **AI Chatbot**: Ask questions about food, nutrition, and health
-3. **BMI Calculator**: Calculate your Body Mass Index
 
-## Contributing
-
-This is a portfolio project. Feel free to fork and modify for your own use.
 
 ## License
 
-This project is for educational and portfolio purposes.
+this was college project feel free to use it and modify it
