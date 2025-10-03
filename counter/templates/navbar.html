@@ -1,0 +1,75 @@
+<div class="menu__container">
+    <div class="menu">
+        <a href="javascript:;">Home</a>
+        <a href="javascript:;">bmi calc</a>
+        <a href="javascript:;">recipe</a>
+        <a href="javascript:;">compare</a>
+        <a href="javascript:;">register</a>
+        <a href="javascript:;">login</a>
+    </div>
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css?family=Varela+Round');
+
+html {
+  box-sizing: border-box;
+ 
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+  padding: 0;
+  margin: 0;
+  
+}
+
+body {
+  font-family: 'Varela Round', sans-serif;
+  padding-top: 60px;
+}
+
+.menu__container {
+    position: absolute;
+    top: 0;           /* Aligns it to the top */
+    width: 100% !important;      /* Full width */
+  
+
+  z-index: 1000; 
+  height: 70px;
+  margin: -5px;
+  border-radius: 5px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  background-image: linear-gradient(to top, #04756855 0%, #3acc3f75 100%);
+  transform: perspective(1000px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  transform-origin: center center 0px;
+  transition: all 0.5s ease-in;
+}
+
+.menu__container:hover {
+  transform: perspective(100px) rotateX(360deg) rotateY(0deg) rotateZ(0deg);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0);
+}
+
+.menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.menu a {
+  text-decoration: none;
+  color: #ffffff;
+  font-size: 17px;
+  margin: 0 15px;
+  transition: all 0.1s linear;
+}
+
+.menu a:hover {
+    transform: scale(1.1);
+}
+</style>

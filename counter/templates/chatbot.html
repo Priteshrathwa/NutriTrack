@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriTrack Chatbot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            margin: 0;
+        }
+        .chat-container {
+            width: 400px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            background: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            font-size: 18px;
+        }
+        .chat-box {
+            height: 200px;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message {
+            max-width: 75%;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .user-message {
+            align-self: flex-end;
+            background: #4CAF50;
+            color: white;
+        }
+        .bot-message {
+            align-self: flex-start;
+            background: #ddd;
+            color: black;
+        }
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #ddd;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            border-radius: 20px;
+            background: #f4f4f4;
+        }
+        .chat-input button {
+            background: #4CAF50;
+            border: none;
+            padding: 10px;
+            color: white;
+            font-size: 16px;
+            margin-left: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .chat-input button:hover {
+            background: #388E3C;
+        }
+
+        /* Typing Animation */
+        .typing {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .typing span {
+            width: 6px;
+            height: 6px;
+            background: gray;
+            border-radius: 50%;
+            display: inline-block;
+            animation: blink 1.5s infinite;
+        }
+        .typing span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">NutriTrack Chatbot</div>
+    
+    <div class="chat-box" id="chat-box">
+        <p class="bot-message">Hi! Ask me anything about food.</p>
+    </div>
+
+    <div class="chat-input">
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<script>
+    
+    function sendMessage() {
+        let userInput = document.getElementById("user-input").value;
+        let chatBox = document.getElementById("chat-box");
+
+        if (userInput.trim() === "") return;
+
+        // Display user message
+        let userMessage = document.createElement("p");
+        userMessage.className = "message user-message";
+        userMessage.textContent = userInput;
+        chatBox.appendChild(userMessage);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Show typing animation
+        let typingIndicator = document.createElement("div");
+        typingIndicator.className = "typing bot-message";
+        typingIndicator.innerHTML = "<span></span><span></span><span></span>";
+        chatBox.appendChild(typingIndicator);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Send AJAX request
+        fetch("/chatbot/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: "message=" + encodeURIComponent(userInput)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Remove typing animation
+            chatBox.removeChild(typingIndicator);
+
+            // Display bot response
+            let botMessage = document.createElement("p");
+            botMessage.className = "message bot-message";
+            botMessage.textContent = data.message;
+            chatBox.appendChild(botMessage);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+
+        // Clear input
+        document.getElementById("user-input").value = "";
+    }
+</script>
+
+
+</body>
+</html>

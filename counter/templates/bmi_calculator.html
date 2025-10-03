@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMI Calculator - NutriTrack</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 60px;
+            background-color: #f8f9fa;
+        }
+        .bmi-container {
+            max-width: 500px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .bmi-result {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .bmi-category {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="bmi-container mt-5">
+            <h2 class="text-center">BMI Calculator</h2>
+            <form id="bmiForm">
+                <div class="mb-3">
+                    <label for="weight" class="form-label">Weight (kg)</label>
+                    <input type="number" id="weight" class="form-control" placeholder="Enter weight" required>
+                </div>
+                <div class="mb-3">
+                    <label for="height" class="form-label">Height (cm)</label>
+                    <input type="number" id="height" class="form-control" placeholder="Enter height" required>
+                </div>
+                <button type="button" class="btn btn-primary w-100" onclick="calculateBMI()">Calculate BMI</button>
+            </form>
+
+            <div class="bmi-result" id="bmiValue"></div>
+            <div class="bmi-category" id="bmiCategory"></div>
+        </div>
+    </div>
+
+    <script>
+        function calculateBMI() {
+            let weight = parseFloat(document.getElementById("weight").value);
+            let height = parseFloat(document.getElementById("height").value) / 100; // Convert cm to meters
+            
+            if (isNaN(weight) || isNaN(height) || height <= 0 || weight <= 0) {
+                alert("Please enter valid values.");
+                return;
+            }
+            
+            let bmi = (weight / (height * height)).toFixed(2);
+            let category = "";
+
+            if (bmi < 18.5) {
+                category = "Underweight 😔";
+            } else if (bmi >= 18.5 && bmi < 24.9) {
+                category = "Normal Weight 😊";
+            } else if (bmi >= 25 && bmi < 29.9) {
+                category = "Overweight 😟";
+            } else {
+                category = "Obese 😟";
+            }
+
+            document.getElementById("bmiValue").innerHTML = `Your BMI: <strong>${bmi}</strong>`;
+            document.getElementById("bmiCategory").innerHTML = `Category: <strong>${category}</strong>`;
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+{% load static %} {%load mathfilters%} {%load humanize%} 
+
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"
+      
+      rel="stylesheet"
+      integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor"
+      crossorigin="anonymous"
+    />
+    <title>NutriTrack Chatbot</title>
+    <link href="{% static 'style.css' %}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="{% static 'navbar2.css' %}">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <title>Foodie Calorie Finder</title>
+  </head>
+
+  <body>
+    
+
+  
+    
+
+    <div class="chat-toggle" onclick="toggleChat(event)">
+        <img src="{% static 'images/chat-icon.png' %}" alt="Chat Icon" width="50">
+    </div>
+    
+    <div class="chat-container">
+        <div class="chat-header">NutriTrack Chatbot</div>
+        
+        <div class="chat-box" id="chat-box">
+            <p class="bot-message">Hi! Ask me anything about food.</p>
+        </div>
+    
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    
+
+   
+    
+    <script>
+        function sendMessage() {
+            let userInput = document.getElementById("user-input").value;
+            let chatBox = document.getElementById("chat-box");
+    
+            if (userInput.trim() === "") return;
+    
+            let userMessage = document.createElement("p");
+            userMessage.className = "message user-message";
+            userMessage.textContent = userInput;
+            chatBox.appendChild(userMessage);
+            chatBox.scrollTop = chatBox.scrollHeight;
+    
+            let typingIndicator = document.createElement("div");
+            typingIndicator.className = "typing bot-message";
+            typingIndicator.innerHTML = "<span></span><span></span><span></span>";
+            chatBox.appendChild(typingIndicator);
+            chatBox.scrollTop = chatBox.scrollHeight;
+    
+            fetch("/chatbot/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: "message=" + encodeURIComponent(userInput)
+            })
+            .then(response => response.json())
+            .then(data => {
+                chatBox.removeChild(typingIndicator);
+            
+                let botMessage = document.createElement("p");
+                botMessage.className = "message bot-message";
+            
+                // Format AI response
+                let cleanedResponse = data.message
+                    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")  // Convert **bold** to <strong>
+                    .replace(/\*(.*?)\*/g, "<em>$1</em>")  // Convert *italic* to <em>
+                    .replace(/##\s?(.*?)(\n|$)/g, "<h3>$1</h3>") // Convert ### Headings to <h3>
+                    .replace(/\n/g, "<br>"); // Convert new lines to <br> for better readability
+            
+                botMessage.innerHTML = cleanedResponse; // Use innerHTML to apply formatting
+                chatBox.appendChild(botMessage);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+            
+            
+    
+            document.getElementById("user-input").value = "";
+        }
+    </script>
+    <script>
+        function toggleChat(event) {
+            let chatContainer = document.querySelector(".chat-container");
+            
+            event.stopPropagation(); // Prevents immediate hiding when toggled
+        
+            if (chatContainer.style.display === "none" || chatContainer.style.display === "") {
+                chatContainer.style.display = "flex"; // Show chatbox
+            } else {
+                chatContainer.style.display = "none"; // Hide chatbox
+            }
+        }
+        
+        // Hide chatbox when clicking outside
+        document.addEventListener("click", function(event) {
+            let chatContainer = document.querySelector(".chat-container");
+            let chatToggle = document.querySelector(".chat-toggle");
+        
+            if (!chatContainer.contains(event.target) && !chatToggle.contains(event.target)) {
+                chatContainer.style.display = "none";
+            }
+        });
+        
+        
+        
+    </script>
+    
+      <div class="container">
+          <div class="row justify-content-center">
+              <div class="col-md-8 text-center">
+                  <img src="{% static 'images/logo.png' %}" class="img-responsive logo mb-5 mt-5" />
+                    <form method="POST">
+                      {%csrf_token%}
+                      <div class="input-group input-group-lg mb-5">
+                      <input type="text" name="query" class="form-control inputstyle" placeholder="search for calories in your food..." required>
+                      <button class="btn whoop" type="submit" id="button-addon2"> Search </button>
+                      </div>
+                    </form>
+                    
+                {% if api %}   
+                
+                {% if api == "enter valid item" %}
+        <div class="alert alert-warning"> entera valid Food item. </div>
+        {% endif %}
+
+
+    {% if api == "oops! There was an error" %}
+        <div class="alert alert-warning"> Oh no! Something went wrong. Please try again later. </div>
+
+
+
+    {% else %}
+        <h1>{{ api.name | capfirst }} has a total of <strong> {{ api.calorie }} Calories</strong>
+            {% if api.calorie > 200 %}
+                <img src="{% static 'images/shocked.png' %}" class="img-responsive" />
+            {% endif %}
+        </h1>
+    
+
+                        {%if api.sodium > 1000%}
+                      <div class="alert alert-danger d-flex align-items-center mt-3" role="alert">
+                          <div>
+                              This food contains an high amount of sodium. High Sodium causes Sever dehydration and water retention.
+                          </div>
+                        </div>
+                        {%endif%}
+                    {%if api.sugar > 30%}
+                  <div class="alert alert-danger d-flex align-items-center mt-3" role="alert">
+                      <div>
+                          This food contains an high amount of sugar. Sugar causes insulin spikes and is a no.1 cause for Obesity.
+                      </div>
+                    </div>
+                    {%endif%}
+          </div>
+          <div class="row justify-content-center mt-5 mb-5">
+              <div class="col-md-10 caloriescont shadow rounded">
+                  <div class="row">
+
+                      <div class="col-md-6">
+                          <h2 class="mt-3 mb-4">Nutritional Values </h2><span></span>
+                          <ul>
+                              <li class="servingsize">Serving Size per 100/Grams <span class="float-end"></span></li>
+                              <li>Carbohydrates: <span class="float-end">{{api.carbohydrate}}g</span></li>
+                              <li>Cholesterol: <span class="float-end">{{api.cholesterol}}mg</span></li>
+                              <li>Total Fat: <span class="float-end">{{api.total_fats}}g</span></li>
+                              <li>Saturated fat: <span class="float-end">{{api.saturated_fat}}g</span></li>
+                              
+                              <li>Fiber Content: <span class="float-end">{{api.fiber}}g</span></li>
+                              <li>Potassium <span class="float-end">{{api.potassium}}mg</span></li>
+                              <li>Protein: <span class="float-end">{{api.protein}}g</span></li>
+                              <li>Sodium:<span class="float-end">{{api.sodium}}mg</span></li>
+                              <li>Sugar: <span class="float-end">{{api.sugar}}g</span></li>
+                          </ul>
+                      </div>
+                      <div class="col-md-6 mb-5">
+                          <h4 class="mt-3 mb-4">To burn {{api.calorie}} calories you will have to</h4>
+                          <div class="d-flex align-items-center mb-5">
+                              <div class="flex-shrink-0">
+                                  <img src="{% static 'images/running.png' %}" alt="...">
+                              </div>
+                              <div class="flex-grow-1 ms-3">
+                                  <h5> Jog </h5>
+                                  <p>you will have to jog for <strong> {{api.calorie | div:378|mul:60|floatformat:0}} </strong> Minutes</p>
+                              </div>
+                          </div>
+                          <div class="d-flex align-items-center mb-5">
+                              <div class="flex-shrink-0">
+                                  <img src="{% static 'images/yoga.png' %}" alt="...">
+                              </div>
+                              <div class="flex-grow-1 ms-4">
+                                  <h5> Do Power Yoga </h5>
+                                  <p>you will have to Power Yoga for <strong> {{api.calorie | div:223|mul:60|floatformat:0}} </strong> Minutes</p>
+                              </div>
+                          </div>
+                          <div class="d-flex align-items-center mb-5">
+                              <div class="flex-shrink-0">
+                                  <img src="{% static 'images/weightlifter.png' %}" alt="...">
+                              </div>
+                              <div class="flex-grow-1 ms-4">
+                                  <h5>Get a Gym Workout </h5>
+                                  <p>you will have to lift weight for <strong> {{api.calorie | div:483|mul:60|floatformat:0}} </strong> Minutes </p>
+                              </div>
+                          </div>
+                          <div class="d-flex align-items-center">
+                              <div class="flex-shrink-0">
+                                  <img src="{% static 'images/walking.png' %}" alt="...">
+                              </div>
+                              <div class="flex-grow-1 ms-1">
+                                  <h5> Go for a Brisk Walk </h5>
+                                  <p>you will have to brisk walk for <strong> {{api.calorie | div:294|mul:60|floatformat:0}}  </strong> Minutes</p>
+                              </div>
+                          </div>
+                      </div>
+                      <div>
+                        <canvas id="myChart" width="400" height="400"></canvas>
+                        </div>
+                  </div>
+              </div>
+              {%endif%}
+              {%endif%}
+          </div>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.8.0/chart.min.js" integrity="sha512-sW/w8s4RWTdFFSduOTGtk4isV1+190E/GghVffMA9XczdJ2MDzSzLEubKAs5h0wzgSJOQTRYyaz73L3d6RtJSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+          <script>
+            const ctx = document.getElementById('myChart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['carbohydrates', 'Cholesterol', 'Saturated fat', 'Total Fat', 'Fiber Content', 'Potassium', 'Protein','Sodium','Sugar'],
+                    datasets: [{
+                        label: 'Nutritional values of {{api.0.name | capfirst}}',
+                        data: [
+                              {{api.carbohydrate}},
+                              {{api.cholesterol}}* 0.001, 
+                              {{api.0.fat_saturated}},
+                              {{api.saturated_fat}},
+                              {{api.total_fats}},
+                              {{api.potassium}}* 0.001, 
+                              {{api.protein}},
+                              {{api.sodium}}* 0.001, 
+                              {{api.Sugar}},
+                        ],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive:true,
+                    maintainAspectRatio:false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            </script>            
+
+            
+            <script>
+                document.getElementById("toggle-chatbot").addEventListener("click", function() {
+                    var chatbot = document.getElementById("chatbot-wrapper");
+                    if (chatbot.style.display === "none" || chatbot.style.display === "") {
+                        chatbot.style.display = "block";
+                    } else {
+                        chatbot.style.display = "none";
+                    }
+                });
+            </script>
+            
+  </body>
+</html>

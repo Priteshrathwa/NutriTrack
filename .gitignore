@@ -1,0 +1,52 @@
+# Environment variables
+.env
+.env.local
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Django
+*.log
+*.pot
+*.pyc
+db.sqlite3
+db.sqlite3-journal
+local_settings.py
+media/
+staticfiles/
+
+# Django admin static files (not needed since admin is disabled)
+static/admin/
+
+# Migrations (since no custom models are used)
+*/migrations/
+!*/migrations/__init__.py
+
+# Virtual environment
+myenv/
+venv/
+env/
+ENV/
+.venv
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# IDEs
+.idea/
+*.swp
+*.swo
+
+# System Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
